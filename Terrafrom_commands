@@ -1,3 +1,12 @@
+Blocks-  It define what is our purpose
+
+1)  provider block      --> service provider
+2)  resource block      --> to create any resource
+3)  data block          --> to refer existing resource
+4)  variable block      --> for variable
+5)  output block        --> for output
+6)  module block        --> to refer existing resource for the future
+========================================
 Steps-
 
 1)  install terraform on your machine.
@@ -6,7 +15,7 @@ Steps-
     sudo yum -y install terraform
 
  2) aws configure
-    
+
 ==========================================
 terraform lifecycle-
 
