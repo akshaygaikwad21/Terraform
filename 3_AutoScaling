@@ -1,0 +1,48 @@
+1)  Created a seperate file of sg.tf
+
+resource "aws_security_group" "sg_block"{
+name = "my-sg"
+description = "creating-sg"
+ingress {
+from_port = 80
+to_port = 80
+protocol = "TCP"
+cidr_blocks = ["0.0.0.0/0"]
+}
+ingress {
+from_port = 22
+to_port =  22
+protocol = "TCP"
+cidr_blocks = ["0.0.0.0/0"]
+}
+egress{
+from_port = 0
+to_port = 0
+protocol = "-1"
+cidr_blocks = ["0.0.0.0/0"]
+}
+
+=================================================================================
+
+2) Created a seperate file of template.tf
+
+resource "aws_launch_template" "my_temp"{
+name = "my-temp"
+image_id = "ami-03edbe403ec8522ed"
+key_name = "terrafrom"
+vpc_security_group_ids = [aws_security_group.sg_block.id]
+user_data = filebase64("./script.sh")
+}
+
+=================================================================================
+
+3)  Created a seperate file of script.sh
+
+#!/bin/bash
+yum update -y
+yum install nginx -y
+systemctl start nginx
+systemctl enable nginx
+echo "Hi $HOSTNAME" > /usr/share/nginx/html/index.html
+
+=================================================================================
