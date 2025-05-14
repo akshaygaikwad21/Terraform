@@ -46,3 +46,13 @@ systemctl enable nginx
 echo "Hi $HOSTNAME" > /usr/share/nginx/html/index.html
 
 =================================================================================
+
+now to run,
+
+terraform init
+terraform plan
+terraform apply --auto-approve
+
+to destroy,
+
+terraform destroy --auto-approve
