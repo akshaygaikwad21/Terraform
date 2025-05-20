@@ -1,5 +1,4 @@
-created 3 seperate directory of instance, sg, vpc.
-
+created 3 seperate directory of instance, sg, vpc. & a main.tf file inside the Project folder.
 the structre as below - 
 .
 ├── instance
