@@ -5,37 +5,41 @@ the structre as below -
 ├── instance
 │   ├── main.tf
 │   └── variable.tf
+├── main.tf
 ├── sg
 │   ├── main.tf
 │   ├── output.tf
 │   └── variable.tf
 └── vpc
     ├── main.tf
-    └── output.tf
+    ├── output.tf
+    └── variable.tf
 
 
 1) instance
 
 main.tf
 
-resource "aws_instance" "insta_block"{
+resource "aws_instance" "instance_block"{
 ami = var.ami_id
-instance_type = var.insta_type
-key_name = var.key_pair_name
-subnet_id = var.my-sub
-security_groups = [var.my-security-group]
+instance_type = var.instance_id
+key_name = var.key_name_pair
+security_groups = [var.my_security_group]
+subnet_id = var.my_pub_sub
 tags = {
 Name = "my-instance1"
 }
 }
 
+
 variable.tf
 
-variable "ami_id"{}
-variable "insta_type" {}
-variable "key_pair_name" {}
-variable "my-sub"{}
-variable "my-security-group" {}
+variable "ami_id" {}
+variable "instance_id" {}
+variable "key_name_pair"{}
+variable "my_security_group" {}
+variable "my_pub_sub"{}
+
 
 --------------------------------------------------------------------------------
 
@@ -45,38 +49,39 @@ main.tf
 
 resource "aws_security_group" "sg_block"{
 name = "my-sg"
-description = "creating_sg"
-vpc_id = var.vpc_id
+vpc_id = var.vpc_id_out
 ingress{
-from_port = 80
-to_port = 80
-protocol = "tcp"
-cidr_blocks = ["0.0.0.0/0"]
+  from_port = 80
+  to_port = 80
+  protocol = "tcp"
+  cidr_blocks = ["0.0.0.0/0"]
 }
 ingress{
-from_port =22
-to_port = 22
-protocol = "tcp"
-cidr_blocks = ["0.0.0.0/0"]
+  from_port = 22
+  to_port = 22
+  protocol = "tcp"
+  cidr_blocks = ["0.0.0.0/0"]
 }
 egress{
-from_port = 0
-to_port = 0
-protocol = "tcp"
-cidr_blocks = ["0.0.0.0/0"]
+  from_port = 0
+  to_port = 0
+  protocol = "-1"
+  cidr_blocks = ["0.0.0.0/0"]
 }
 }
+
 
 
 variable.tf
 
-variable "vpc_id"{}
+variable "vpc_id_out"{}
 
 output.tf
 
-output "sg_out"{
-values = aws_security_group.sg_block.id
+output "sg_id_out"{
+value = "aws_security_group.sg_block.id"
 }
+
 
 
 -------------------------------------------------------------------------------
@@ -86,28 +91,28 @@ values = aws_security_group.sg_block.id
 main.tf
 
 resource "aws_vpc" "vpc_block"{
-cidr_block = ["10.0.0.0/24"]
+cidr_block = var.cidr
 tags = {
 Name = "my-vpc"
 }
 }
 
-resource "aws_subnet" "pub_sub"{
+resource "aws_subnet" "my_public_subnet_block"{
 vpc_id = aws_vpc.vpc_block.id
-cidr_block = ["10.0.0.0/25"]
+cidr_block = "10.0.0.0/25"
 map_public_ip_on_launch = true
 availability_zone = "ap-south-1a"
 tags = {
-Name = "my_public_sub"
+Name = "my_public_subnet"
 }
 }
 
-resource "aws_subnet" "priv_sub"{
+resource "aws_subnet" "my_private_subnet_block"{
 vpc_id = aws_vpc.vpc_block.id
-cidr_block = ["10.0.0.128/25"]
+cidr_block = "10.0.0.128/25"
 availability_zone = "ap-south-1a"
 tags = {
-Name = "my_private_sub"
+Name = "my_private_subnet"
 }
 }
 
@@ -118,26 +123,60 @@ Name = "my-igw"
 }
 }
 
-resource "aws_default_route_table" "rout_block"{
+resource "aws_default_route_table" "route_block"{
 default_route_table_id = aws_vpc.vpc_block.default_route_table_id
-route {
+route{
 cidr_block = "0.0.0.0/0"
 gateway_id = aws_internet_gateway.igw_block.id
 }
 }
 
 
+
+variable.tf
+
+variable "cidr"{
+default = "10.0.0.0/24"
+}
+
+
 output.tf
 
-output "vpc_id"{
-values = aws_vpc.vpc_block.id
+output "vpc_id_out"{
+value = aws_vpc.vpc_block.id
 }
 
-output "sub_output"{
-  values = aws_subnet.pub_sub.id
+output "vpc_public_subnet_out"{
+value = aws_subnet.my_public_subnet_block.id
 }
+
 
 
 -------------------------------------------------------------------------------------
 
+4) main.tf (Created a file inside the Project folder)
 
+
+provider "aws"{
+region = "ap-south-1"
+}
+
+module "vpc_module"{
+source = "./vpc"
+}
+
+module "sg_module"{
+source = "./sg"
+vpc_id_out = module.vpc_module.vpc_id_out
+}
+
+module "instance_module"{
+source = "./instance"
+ami_id = "ami-06031e2c49c278c8f"
+instance_id = "t2.micro"
+key_name_pair = "terraform"
+my_pub_sub = module.vpc_module.vpc_public_subnet_out
+my_security_group = module.sg_module.sg_id_out
+}
+
+-------------------------------------------------------------------------------------
