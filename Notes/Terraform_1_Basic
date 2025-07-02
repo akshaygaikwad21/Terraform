@@ -1,0 +1,72 @@
+	
+	** Terraform **
+	
+	
+	
+	NOTE - > Reffer video Day 25
+	
+	Terraform lifecyle 
+	
+		1) terraform init -    					used for initillization and it will install the libraries of terraform.
+		2) terraform plan - 					Blueprint of our resources.
+		3) terraform apply --auto-approve		it will apply the changes.
+
+
+
+Ex - To create aws instance.
+
+->  1)	first create a Ec2 instance and launch it. 
+	2)	The, on that install the terraform.
+			sudo yum install -y yum-utils shadow-utils
+			sudo yum-config-manager --add-repo https://rpm.releases.hashicorp.com/AmazonLinux/hashicorp.repo
+			sudo yum -y install terraform
+			
+	
+	3)	After installing, then give the aws credtials.
+			
+			aws configure
+			Access key:
+			Secret access key:
+			
+	
+	4) Then, you can use terraform commands.
+	
+	
+	5)	Now, wite .tf file for creata infrastructure.
+	
+		vi file1.tf
+		
+			provider "aws" {
+				region "<your_region>"
+			}
+			
+			resource "aws_instance" "my_block"{
+				ami = ""
+				instance_type = "t2.micro"
+				security_groups = ["default"]
+				key_pair = "<your_instance_key_name>"
+				tags = {
+					Name = "Terraform_instance"
+			}
+			}
+			
+			
+		save it.
+		
+	6) Now, apply the following commands.
+	
+		terraform init
+		terraform plan
+		terraform apply --auto-approve
+		
+		
+		It will create a infrastructure for us.
+		
+	7) Then, To delete the infrastructure .
+	
+		terraform destroy --auto-approve
+		
+		
+		It will delete all the infrastructures.
+		
+		
