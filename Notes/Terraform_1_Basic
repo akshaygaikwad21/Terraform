@@ -37,14 +37,14 @@ Ex - To create aws instance.
 		vi file1.tf
 		
 			provider "aws" {
-				region "<your_region>"
+				region = "<your_region>"
 			}
 			
 			resource "aws_instance" "my_block"{
 				ami = ""
 				instance_type = "t2.micro"
 				security_groups = ["default"]
-				key_pair = "<your_instance_key_name>"
+				key_name = "<your_instance_key_name>"
 				tags = {
 					Name = "Terraform_instance"
 			}
